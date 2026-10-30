@@ -1,0 +1,32 @@
+
+{% extends "base.html" %}
+{% block title %}Login | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<section class="form-container">
+    <div class="form-card">
+        <p class="eyebrow">WELCOME BACK</p>
+        <h1>Login to your account</h1>
+        <p class="form-subtitle">Sign in to report or find campus items.</p>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="email">Email Address</label>
+            <input id="email" type="email" name="email"
+                   placeholder="Enter your email" required>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password"
+                   placeholder="Enter your password" required>
+
+            <button class="btn btn-primary btn-full" type="submit">
+                Login
+            </button>
+        </form>
+
+        <p class="form-footer">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Register here</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,90 @@
+
+{% extends "base.html" %}
+{% block title %}{{ item.name }} | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <a href="{{ url_for('index') }}" class="back-link">
+        ← Back to Reports
+    </a>
+
+    <article class="detail-card">
+        {% if item.image_url %}
+            <img src="{{ item.image_url }}"
+                 alt="{{ item.name }}" class="detail-image">
+        {% else %}
+            <div class="detail-image image-placeholder">
+                <span>📦</span>
+                <p>No photo available</p>
+            </div>
+        {% endif %}
+
+        <div class="detail-content">
+            <div class="card-tags">
+                <span class="tag {% if item.item_type == 'Lost' %}tag-lost{% else %}tag-found{% endif %}">
+                    {{ item.item_type }}
+                </span>
+                <span class="tag">
+                    {{ item.status }}
+                </span>
+            </div>
+
+            <h1>{{ item.name }}</h1>
+            <p>{{ item.description }}</p>
+
+            <div class="detail-meta">
+                <p><strong>Category:</strong> {{ item.category }}</p>
+                <p><strong>Location:</strong> {{ item.location }}</p>
+                <p><strong>Date:</strong> {{ item.item_date }}</p>
+                <p><strong>Reported by:</strong> {{ item.reporter_name }}</p>
+            </div>
+
+            {% if session.get('user_id') == item.user_id %}
+                <form method="POST"
+                      action="{{ url_for('toggle_status', item_id=item.id) }}">
+                    <button class="btn btn-primary" type="submit">
+                        {% if item.status == 'Open' %}
+                            Mark as Returned
+                        {% else %}
+                            Reopen Report
+                        {% endif %}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </article>
+
+    <section class="replies-section">
+        <h2>Messages & Replies</h2>
+
+        {% if replies %}
+            {% for reply in replies %}
+                <div class="reply-card">
+                    <strong>{{ reply.sender_name }}</strong>
+                    <p>{{ reply.message }}</p>
+                    <small>{{ reply.created_at }}</small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No replies yet. Start the conversation.</p>
+        {% endif %}
+
+        {% if session.get('user_id') %}
+            <form method="POST"
+                  action="{{ url_for('item_detail', item_id=item.id) }}"
+                  class="reply-form">
+                <label for="message">Write a message</label>
+                <textarea id="message" name="message"
+                          rows="3" maxlength="2000"
+                          placeholder="Ask about this item..."
+                          required></textarea>
+                <button class="btn btn-primary" type="submit">
+                    Send Reply
+                </button>
+            </form>
+        {% else %}
+            <p><a href="{{ url_for('login') }}">Login</a> to send a reply.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

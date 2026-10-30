@@ -1,0 +1,144 @@
+
+{% extends "base.html" %}
+{% block title %}Report an Item | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<section class="form-container report-container">
+    <div class="form-card">
+        <p class="eyebrow">CAMPUS ITEM REPORT</p>
+        <h1>Report an Item</h1>
+        <p class="form-subtitle">
+            Share the details so the campus community can help.
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('report') }}"
+              enctype="multipart/form-data">
+
+            <label for="item_type">Report Type</label>
+            <select id="item_type" name="item_type" required>
+                <option value="">Select report type</option>
+                <option value="Lost">I Lost an Item</option>
+                <option value="Found">I Found an Item</option>
+            </select>
+
+            <label for="name">Item Name</label>
+            <input id="name" type="text" name="name"
+                   placeholder="e.g. Black wallet"
+                   maxlength="150" required>
+
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="">Select category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="ID Card">ID Card</option>
+                <option value="Books">Books</option>
+                <option value="Bags">Bags</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Keys">Keys</option>
+                <option value="Wallet">Wallet</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="location">Location</label>
+            <input id="location" type="text" name="location"
+                   placeholder="e.g. College library"
+                   maxlength="200" required>
+
+            <label for="item_date">Date Lost or Found</label>
+            <input id="item_date" type="date" name="item_date" required>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description"
+                      rows="5" maxlength="3000"
+                      placeholder="Describe the item and any identifying details..."
+                      required></textarea>
+
+            <label for="photo">Item Photo (Optional)</label>
+            <input id="photo" type="file" name="photo"
+                   accept="image/png,image/jpeg,image/webp">
+
+            <p class="field-help">PNG, JPG or WEBP. Maximum size: 5 MB.</p>
+
+            <div id="photo-preview-container" hidden>
+                <p>Photo Preview</p>
+                <img id="photo-preview" alt="Selected item photo preview"
+                     class="photo-preview">
+                <button type="button" id="remove-photo" class="btn btn-light">
+                    Remove Photo
+                </button>
+            </div>
+
+            <button class="btn btn-primary btn-full" type="submit">
+                Submit Report
+            </button>
+
+            <a href="{{ url_for('index') }}" class="cancel-link">
+                Cancel
+            </a>
+        </form>
+    </div>
+</section>
+
+<script>
+const photoInput = document.getElementById("photo");
+const previewContainer = document.getElementById("photo-preview-container");
+const previewImage = document.getElementById("photo-preview");
+const removePhotoButton = document.getElementById("remove-photo");
+
+let previewUrl = null;
+
+photoInput.addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+    }
+
+    if (!file) {
+        previewContainer.hidden = true;
+        previewImage.removeAttribute("src");
+        return;
+    }
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+        alert("Please select a PNG, JPG or WEBP image.");
+        this.value = "";
+        previewContainer.hidden = true;
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be 5 MB or less.");
+        this.value = "";
+        previewContainer.hidden = true;
+        return;
+    }
+
+    previewUrl = URL.createObjectURL(file);
+    previewImage.src = previewUrl;
+    previewContainer.hidden = false;
+});
+
+removePhotoButton.addEventListener("click", function () {
+    photoInput.value = "";
+    previewImage.removeAttribute("src");
+    previewContainer.hidden = true;
+
+    if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+    }
+});
+
+window.addEventListener("beforeunload", function () {
+    if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+    }
+});
+</script>
+{% endblock %}

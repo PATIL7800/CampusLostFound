@@ -1,0 +1,180 @@
+
+{% extends "base.html" %}
+
+{% block title %}Home | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">CAMPUS COMMUNITY</p>
+    <h1>Lost something? <span>Find it here.</span></h1>
+    <p>Report lost items, share found items, and help reunite belongings with their owners.</p>
+
+    {% if session.get('user_id') %}
+        <a class="btn btn-primary" href="{{ url_for('report') }}">+ Report an Item</a>
+    {% else %}
+        <a class="btn btn-primary" href="{{ url_for('login') }}">Get Started</a>
+    {% endif %}
+</section>
+
+<section class="search-section">
+    <h2>Find an Item</h2>
+
+    <form method="GET" action="{{ url_for('index') }}" class="search-form">
+        <input
+            type="text"
+            name="q"
+            placeholder="Search item name or description..."
+            value="{{ search }}"
+        >
+
+        <select name="type">
+            <option value="">All Types</option>
+            <option value="Lost" {% if item_type == 'Lost' %}selected{% endif %}>Lost</option>
+            <option value="Found" {% if item_type == 'Found' %}selected{% endif %}>Found</option>
+        </select>
+
+        <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value="{{ category }}"
+        >
+
+        <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            value="{{ location }}"
+        >
+
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a class="btn btn-light" href="{{ url_for('index') }}">Clear</a>
+    </form>
+</section>
+
+{% if matches %}
+<section class="reports-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">MATCHING RESULTS</p>
+            <h2>Possible Matches for Your Lost Items</h2>
+            <p>These Found reports have a matching category and similar item details.</p>
+        </div>
+        <span class="result-count">{{ matches|length }} matches</span>
+    </div>
+
+    <div class="item-grid">
+        {% for match in matches %}
+            <article class="item-card">
+                {% if match.found_image_url %}
+                    <img
+                        src="{{ match.found_image_url }}"
+                        alt="{{ match.found_name }}"
+                        class="item-image"
+                        loading="lazy"
+                    >
+                {% else %}
+                    <div class="item-image image-placeholder">
+                        <span>📦</span>
+                        <p>No photo available</p>
+                    </div>
+                {% endif %}
+
+                <div class="item-card-content">
+                    <div class="card-tags">
+                        <span class="tag tag-found">Found</span>
+                        <span class="tag">Possible Match</span>
+                    </div>
+
+                    <h3>{{ match.found_name }}</h3>
+                    <p class="item-description">{{ match.found_description }}</p>
+
+                    <div class="item-meta">
+                        <p>📂 {{ match.found_category }}</p>
+                        <p>📍 {{ match.found_location }}</p>
+                        <p>📅 {{ match.found_date }}</p>
+                        <p>👤 {{ match.reporter_name }}</p>
+                    </div>
+
+                    <a
+                        class="btn btn-primary btn-full"
+                        href="{{ url_for('item_detail', item_id=match.found_id) }}"
+                    >
+                        View Found Item
+                    </a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="reports-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">CAMPUS BOARD</p>
+            <h2>Recent Reports</h2>
+        </div>
+        <span class="result-count">{{ items|length }} reports</span>
+    </div>
+
+    {% if items %}
+        <div class="item-grid">
+            {% for item in items %}
+                <article class="item-card">
+                    {% if item.image_url %}
+                        <img
+                            src="{{ item.image_url }}"
+                            alt="{{ item.name }}"
+                            class="item-image"
+                        >
+                    {% else %}
+                        <div class="item-image image-placeholder">
+                            <span>📦</span>
+                            <p>No photo available</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="item-card-content">
+                        <div class="card-tags">
+                            <span class="tag {% if item.item_type == 'Lost' %}tag-lost{% else %}tag-found{% endif %}">
+                                {{ item.item_type }}
+                            </span>
+
+                            {% if item.is_pinned %}
+                                <span class="tag tag-pinned">📌 Pinned</span>
+                            {% endif %}
+                        </div>
+
+                        <h3>{{ item.name }}</h3>
+                        <p class="item-description">{{ item.description }}</p>
+
+                        <div class="item-meta">
+                            <p>📂 {{ item.category }}</p>
+                            <p>📍 {{ item.location }}</p>
+                            <p>📅 {{ item.item_date }}</p>
+                            <p>👤 {{ item.reporter_name }}</p>
+                        </div>
+
+                        <a
+                            class="btn btn-primary btn-full"
+                            href="{{ url_for('item_detail', item_id=item.id) }}"
+                        >
+                            View Details
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No reports found</h3>
+            <p>Try another search or be the first to report an item.</p>
+
+            {% if session.get('user_id') %}
+                <a class="btn btn-primary" href="{{ url_for('report') }}">Report an Item</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

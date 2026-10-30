@@ -1,0 +1,6 @@
+
+Flask
+psycopg[binary]
+python-dotenv
+supabase
+gunicorn

@@ -1,0 +1,13 @@
+
+{% extends "base.html" %}
+{% block title %}Notice | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<section class="empty-state">
+    <h1>{{ title | default('Notice') }}</h1>
+    <p>{{ message | default('Please return to the home page.') }}</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">
+        Go to Home
+    </a>
+</section>
+{% endblock %}

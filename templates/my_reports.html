@@ -1,0 +1,88 @@
+
+{% extends "base.html" %}
+{% block title %}My Reports | Campus Lost & Found{% endblock %}
+
+{% block content %}
+<section class="reports-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">YOUR ACTIVITY</p>
+            <h1>My Reports</h1>
+            <p>Manage the items you have reported.</p>
+        </div>
+        <a href="{{ url_for('report') }}" class="btn btn-primary">
+            + New Report
+        </a>
+    </div>
+
+    {% if items %}
+        <div class="item-grid">
+            {% for item in items %}
+                <article class="item-card">
+                    {% if item.image_url %}
+                        <img src="{{ item.image_url }}"
+                             alt="{{ item.name }}" class="item-image">
+                    {% else %}
+                        <div class="item-image image-placeholder">
+                            <span>📦</span>
+                            <p>No photo available</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="item-card-content">
+                        <div class="card-tags">
+                            <span class="tag {% if item.item_type == 'Lost' %}tag-lost{% else %}tag-found{% endif %}">
+                                {{ item.item_type }}
+                            </span>
+                            <span class="tag">{{ item.status }}</span>
+                            {% if item.is_pinned %}
+                                <span class="tag tag-pinned">📌 Pinned</span>
+                            {% endif %}
+                        </div>
+
+                        <h3>{{ item.name }}</h3>
+                        <p class="item-description">{{ item.description }}</p>
+                        <p>📍 {{ item.location }}</p>
+                        <p>📅 {{ item.item_date }}</p>
+
+                        <a class="btn btn-primary btn-full"
+                           href="{{ url_for('item_detail', item_id=item.id) }}">
+                            View Details
+                        </a>
+
+                        <form method="POST"
+                              action="{{ url_for('toggle_pin', item_id=item.id) }}">
+                            <button class="btn btn-light btn-full" type="submit">
+                                {% if item.is_pinned %}Unpin Report{% else %}Pin Report{% endif %}
+                            </button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ url_for('toggle_status', item_id=item.id) }}">
+                            <button class="btn btn-light btn-full" type="submit">
+                                {% if item.status == 'Open' %}Mark as Returned{% else %}Reopen Report{% endif %}
+                            </button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ url_for('delete_item', item_id=item.id) }}"
+                              onsubmit="return confirm('Are you sure you want to delete this report?');">
+                            <button class="btn btn-danger btn-full" type="submit">
+                                Delete Report
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No reports yet</h2>
+            <p>Your Lost and Found reports will appear here.</p>
+            <a href="{{ url_for('report') }}" class="btn btn-primary">
+                Create Your First Report
+            </a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
